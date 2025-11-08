@@ -1,0 +1,117 @@
+services:
+  # ===========================================
+  # OPEN WEBUI - Sempre ativo
+  # ===========================================
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      # ========================================
+      # MODO 1: APIs EXTERNAS (PADRÃO)
+      # ========================================
+      # Descomente UMA das opções abaixo:
+      
+      # OpenAI
+      # - OPENAI_API_BASE_URL=https://api.openai.com/v1
+      # - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      
+      # Groq (Rápido e gratuito)
+      - OPENAI_API_BASE_URL=https://api.groq.com/openai/v1
+      - OPENAI_API_KEY=${GROQ_API_KEY:-}
+      
+      # Anthropic Claude
+      # - OPENAI_API_BASE_URL=https://api.anthropic.com/v1
+      # - OPENAI_API_KEY=${ANTHROPIC_API_KEY:-}
+      
+      # Together AI
+      # - OPENAI_API_BASE_URL=https://api.together.xyz/v1
+      # - OPENAI_API_KEY=${TOGETHER_API_KEY:-}
+      
+      # OpenRouter (Múltiplos modelos)
+      # - OPENAI_API_BASE_URL=https://openrouter.ai/api/v1
+      # - OPENAI_API_KEY=${OPENROUTER_API_KEY:-}
+      
+      # ========================================
+      # MODO 2: OLLAMA LOCAL
+      # ========================================
+      # Para usar Ollama local:
+      # 1. Comente as linhas de API externa acima
+      # 2. Descomente as linhas abaixo
+      # 3. Descomente o serviço ollama no final do arquivo
+      # 4. Execute: docker-compose up -d
+      
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - ENABLE_OLLAMA_API=true
+      
+      # ========================================
+      # CONFIGURAÇÕES GERAIS
+      # ========================================
+      - WEBUI_AUTH=false  # Mude para true em produção
+      - ENABLE_SIGNUP=false
+      - WORKERS=1
+      - TIMEOUT=300
+      
+    restart: unless-stopped
+    
+    # Descomente depends_on se for usar Ollama local
+    depends_on:
+      - ollama
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # ===========================================
+  # OLLAMA LOCAL - Opcional (comentado por padrão)
+  # ===========================================
+  # Para ativar o Ollama local:
+  # 1. Descomente todo este bloco
+  # 2. Descomente o volume 'ollama' no final
+  # 3. Configure OLLAMA_BASE_URL no open-webui acima
+  # 4. Execute: docker-compose up -d
+  
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    restart: unless-stopped
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 3G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    
+    # Descomente se tiver GPU NVIDIA
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    #
+    # Error response from daemon: could not select device driver "nvidia" with capabilities: [[gpu]]
+
+volumes:
+  open-webui:
+    driver: local
+  
+  # Descomente se for usar Ollama local
+  ollama:
+    driver: local
