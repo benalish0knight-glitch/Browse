@@ -1,0 +1,18 @@
+# ========================================
+# APIs EXTERNAS - Escolha uma
+# ========================================
+
+# OpenAI
+# OPENAI_API_KEY=sua-chave-aqui
+
+# Groq (Gratuito, muito rápido)
+GROQ_API_KEY=gsk_***KEY***
+
+# Anthropic Claude
+# ANTHROPIC_API_KEY=sk-ant-sua-chave-aqui
+
+# Together AI
+# TOGETHER_API_KEY=sua-chave-aqui
+
+# OpenRouter (Acesso a múltiplos modelos)
+# OPENROUTER_API_KEY=sk-or-sua-chave-aqui
